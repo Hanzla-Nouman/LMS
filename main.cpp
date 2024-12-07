@@ -17,7 +17,7 @@ const int TotalRegSubjects = 4;
 string studentInfo[maxStudents][3];
 string studentSubjects[maxStudents][TotalRegSubjects];
 string studentGrades[maxStudents][TotalRegSubjects];
-string studentMarks[maxStudents][TotalRegSubjects];
+int studentMarks[maxStudents][TotalRegSubjects];
 double CGPA[maxStudents];
 
 void saveToTeachersFile()
@@ -65,6 +65,19 @@ void saveToStudentsFile()
         {
             file << studentSubjects[count][i] << (i == maxSubjects - 1 ? "\n" : ",");
         }
+        cout<<endl;
+        for (int i = 0; i < maxSubjects; i++)
+        {
+            file << studentMarks[count][i] << (i == maxSubjects - 1 ? "\n" : ",");
+        }
+        cout<<endl;
+        for (int i = 0; i < maxSubjects; i++)
+        {
+            file << studentGrades[count][i] << (i == maxSubjects - 1 ? "\n" : ",");
+        }
+        cout<<endl;
+        file<<"CGPA: "<< CGPA[count]<<endl;
+        cout<<endl;
         count++;
     }
 
@@ -136,14 +149,14 @@ void loadFromStudentsFile()
         studentInfo[count][1] = line.substr(commaPos + 1);
 
         // Read subjects
-        // getline(file, line);
-        // size_t startPos = 0, endPos;
-        // for (int i = 0; i < maxSubjects; i++) {
-        //     endPos = line.find(",", startPos);
-        //     string subject = line.substr(startPos, endPos - startPos);
-        //     teacherSubjects[count][i] = (subject == "NONE" ? "" : subject);
-        //     startPos = endPos + 1;
-        // }
+        getline(file, line);
+        size_t startPos = 0, endPos;
+        for (int i = 0; i < maxSubjects; i++) {
+            endPos = line.find(",", startPos);
+            string subject = line.substr(startPos, endPos - startPos);
+            studentSubjects[count][i] = (subject == "NONE" ? "" : subject);
+            startPos = endPos + 1;
+        }
 
         // // Read classes
         // getline(file, line);
@@ -286,7 +299,15 @@ void addStudent()
         cin >> subject;
         studentSubjects[count][i] = subject;
     }
-
+    for (int i = 0; i < maxSubjects; i++)
+    {
+        studentMarks[count][i] = 0  ;
+    }
+    for (int i = 0; i < maxSubjects; i++)
+    {
+        studentGrades[count][i] = "Not Assigned"  ;
+    }
+     CGPA[count] = 0.00;
     // Add classes
     cout << "Enter class" << endl;
 
@@ -298,6 +319,7 @@ void addStudent()
     cout << "Student added successfully!" << endl;
     saveToStudentsFile();
 }
+
 
 void deleteTeacher()
 {
@@ -363,6 +385,8 @@ void deleteTeacher()
 
 void deleteStudent()
 {
+     cout<<"Subjects: "<<studentSubjects[1][2]<<endl;
+    
     int count = getStudentCount();
     if (count == 0)
     {
@@ -390,7 +414,7 @@ void deleteStudent()
         return;
     }
 
-    // Shift elements to "delete" the teacher
+    // Shift elements to "delete" the student
     for (int i = indexToDelete; i < count - 1; i++)
     {
         studentInfo[i][0] = studentInfo[i + 1][0];
@@ -457,6 +481,37 @@ void displayTeacherDetails()
 
     cout << "Teacher ID not found!" << endl;
 }
+string calGrade(int marks){
+    if (marks>=90)
+    {
+       return "A+";
+    }
+  else if (marks<90 && marks<=80)
+    {
+       return "A-";
+    }
+  else if (marks<80 && marks<=70)
+    {
+       return "B+";
+    }
+  else if (marks<70 && marks<=60)
+    {
+       return "C";
+    }
+  else if (marks<60 && marks<=50)
+    {
+       return "D";
+    }
+  else if (marks<50)
+    {
+       return "F";
+    }else
+    {
+        cout<<"Invalid Marks. Grade cant be calculated"<<endl;
+    }
+    
+    
+}
 void assignMarks(){
         int count = getStudentCount();
     if (count == 0)
@@ -482,7 +537,25 @@ void assignMarks(){
         cout << "Student ID not found!" << endl;
         return;
     }
-
+    for (int j = 0; j < maxSubjects; j++)
+    {
+        cout<<j+1<<". "<<studentSubjects[studentIdMarks][j]<<endl;
+    }
+    int marksIndex;
+    cout<<"Enter the subject number to assign marks:  "<<endl;
+    cin>>marksIndex;
+    for (int i = 0; i < maxSubjects; i++)
+    {
+     if(marksIndex-1 == i){
+        cout<<"Enter Marks for "<<studentSubjects[studentIdMarks][i]<<": ";
+        int marksSpecific;
+        cin >> marksSpecific;
+        studentGrades[studentIdMarks][i] = calGrade(marksSpecific);
+        studentMarks[studentIdMarks][i] = marksSpecific;
+        saveToStudentsFile();
+     }
+    }
+    
 }
 int main()
 {
@@ -548,9 +621,8 @@ int main()
             case 4:
                 assignMarks();
                 break;
-
             case 5:
-
+                
                 break;
 
             case 6:
